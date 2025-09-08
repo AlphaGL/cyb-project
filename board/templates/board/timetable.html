@@ -1,0 +1,317 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Class Timetable - Student Information Board{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="margin-bottom: 2rem;">
+    <h1 style="color: #333; margin-bottom: 0.5rem;">
+        <span style="color: #fd7e14;">🕒</span> Class Timetable
+    </h1>
+    <p style="color: #666;">Check your class schedules, venues, and course details by department and level.</p>
+</div>
+
+<!-- Filter Section -->
+<div class="search-section">
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="department">Filter by Department</label>
+            <select id="department" name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept.id|stringformat:'s' == department_filter %}selected{% endif %}>
+                        {{ dept.name }} ({{ dept.code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="level">Filter by Level</label>
+            <select id="level" name="level" class="form-select">
+                <option value="">All Levels</option>
+                {% for level in levels %}
+                    <option value="{{ level }}" {% if level == level_filter %}selected{% endif %}>
+                        {{ level }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">
+                <span>🔍</span> Filter
+            </button>
+            <a href="{% url 'timetable' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Filter Info -->
+{% if department_filter or level_filter %}
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; border-left: 4px solid #fd7e14;">
+        <p style="margin: 0; color: #333;">
+            <strong>Showing timetable for:</strong>
+            {% if department_filter %}
+                {% for dept in departments %}
+                    {% if dept.id|stringformat:'s' == department_filter %}
+                        Department: <em>{{ dept.name }}</em>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if level_filter %}
+                Level: <em>{{ level_filter }}</em>
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+
+<!-- Timetable Display -->
+<div style="margin-bottom: 2rem;">
+    {% for day, classes in timetable_by_day.items %}
+        {% if classes %}
+            <div class="timetable-day">
+                <div class="day-header">
+                    <h2 style="margin: 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>{{ day|title }}</span>
+                        <span style="font-size: 0.8rem; opacity: 0.8;">{{ classes|length }} class{% if classes|length != 1 %}es{% endif %}</span>
+                    </h2>
+                </div>
+                <div class="day-content">
+                    {% if classes %}
+                        {% for class in classes %}
+                            <div class="class-item">
+                                <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center;">
+                                    <!-- Time -->
+                                    <div style="text-align: center; min-width: 120px;">
+                                        <div style="background: #667eea; color: white; padding: 0.5rem; border-radius: 5px; font-weight: bold;">
+                                            {{ class.start_time|date:"g:i A" }}
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">
+                                            {{ class.end_time|date:"g:i A" }}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Course Details -->
+                                    <div>
+                                        <h4 style="color: #333; margin-bottom: 0.3rem;">
+                                            {{ class.course_code }} - {{ class.course_title }}
+                                        </h4>
+                                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.9rem; color: #666;">
+                                            <span><strong>👨‍🏫 Lecturer:</strong> {{ class.lecturer }}</span>
+                                            <span><strong>📍 Venue:</strong> {{ class.venue }}</span>
+                                            <span><strong>🎓 Level:</strong> {{ class.level }}</span>
+                                            <span><strong>📚 Semester:</strong> {{ class.semester }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Department Badge -->
+                                    <div style="text-align: center;">
+                                        <span style="background: #f8f9fa; color: #667eea; padding: 0.3rem 0.6rem; border-radius: 3px; font-size: 0.8rem; font-weight: bold; border: 1px solid #667eea;">
+                                            {{ class.department.code }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% empty %}
+        <!-- No timetable data -->
+        <div class="card">
+            <div class="card-body" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">🕒</div>
+                <h3 style="color: #666; margin-bottom: 1rem;">
+                    {% if department_filter or level_filter %}
+                        No classes match your filters
+                    {% else %}
+                        No timetable available
+                    {% endif %}
+                </h3>
+                <p style="color: #888; margin-bottom: 2rem;">
+                    {% if department_filter or level_filter %}
+                        Try adjusting your filters or clear them to see all available classes.
+                    {% else %}
+                        The class timetable will be available once schedules are published.
+                    {% endif %}
+                </p>
+                {% if department_filter or level_filter %}
+                    <a href="{% url 'timetable' %}" class="btn btn-primary">
+                        View All Classes
+                    </a>
+                {% else %}
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        ← Back to Home
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Summary Section -->
+{% if timetable_by_day %}
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">📊 Weekly Summary</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+                {% for day, classes in timetable_by_day.items %}
+                    {% if classes %}
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                            <h4 style="color: #333; margin-bottom: 0.5rem;">{{ day|title }}</h4>
+                            <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin: 0;">{{ classes|length }}</p>
+                            <small style="color: #666;">class{% if classes|length != 1 %}es{% endif %}</small>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Today's Classes Highlight -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Highlight today's classes
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const today = days[new Date().getDay()];
+    
+    const todayHeader = document.querySelector(`[data-day="${today}"] .day-header`);
+    if (todayHeader) {
+        todayHeader.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+        
+        // Add "TODAY" badge
+        const todayBadge = document.createElement('span');
+        todayBadge.textContent = 'TODAY';
+        todayBadge.style.background = 'rgba(255,255,255,0.2)';
+        todayBadge.style.padding = '0.2rem 0.5rem';
+        todayBadge.style.borderRadius = '3px';
+        todayBadge.style.fontSize = '0.7rem';
+        todayBadge.style.fontWeight = 'bold';
+        todayHeader.querySelector('h2 span:first-child').appendChild(todayBadge);
+    }
+    
+    // Add current time indicator
+    const now = new Date();
+    const currentTime = now.getHours() * 100 + now.getMinutes();
+    
+    // Add current time indicator
+    const now = new Date();
+    const currentTime = now.getHours() * 100 + now.getMinutes();
+    
+    document.querySelectorAll('.class-item').forEach(classItem => {
+        const timeDiv = classItem.querySelector('div[style*="background: #667eea"]');
+        if (timeDiv) {
+            const startTimeText = timeDiv.textContent.trim();
+            const endTimeDiv = timeDiv.parentNode.querySelector('div[style*="font-size: 0.8rem"]');
+            const endTimeText = endTimeDiv ? endTimeDiv.textContent.trim() : '';
+            
+            // Simple time parsing (this is a basic implementation)
+            const startHour = parseInt(startTimeText.split(':')[0]);
+            const startMinute = parseInt(startTimeText.split(':')[1]) || 0;
+            const startTime24 = startHour * 100 + startMinute;
+            
+            // Check if class is currently happening (rough implementation)
+            const isHappening = currentTime >= startTime24 && currentTime <= (startTime24 + 200); // Assumes 2-hour classes
+            
+            if (isHappening) {
+                classItem.style.borderLeft = '4px solid #28a745';
+                classItem.style.background = '#d4edda';
+                
+                const liveIndicator = document.createElement('div');
+                liveIndicator.innerHTML = '<span style="color: #28a745; font-weight: bold;">🔴 LIVE NOW</span>';
+                liveIndicator.style.marginTop = '0.5rem';
+                classItem.appendChild(liveIndicator);
+            }
+        }
+    });
+    
+    // Add print functionality
+    const printButton = document.createElement('button');
+    printButton.textContent = '🖨️ Print Timetable';
+    printButton.className = 'btn btn-secondary';
+    printButton.style.marginBottom = '1rem';
+    printButton.onclick = function() {
+        window.print();
+    };
+    
+    const header = document.querySelector('h1').parentNode;
+    header.appendChild(printButton);
+    
+    // Quick navigation to days
+    const dayNavigation = document.createElement('div');
+    dayNavigation.style.position = 'fixed';
+    dayNavigation.style.right = '20px';
+    dayNavigation.style.top = '50%';
+    dayNavigation.style.transform = 'translateY(-50%)';
+    dayNavigation.style.background = 'white';
+    dayNavigation.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    dayNavigation.style.borderRadius = '25px';
+    dayNavigation.style.padding = '0.5rem';
+    dayNavigation.style.display = 'none';
+    
+    const dayAbbrevs = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    
+    dayNames.forEach((day, index) => {
+        const dayElement = document.querySelector(`[data-day="${day}"]`);
+        if (dayElement) {
+            const navButton = document.createElement('button');
+            navButton.textContent = dayAbbrevs[index];
+            navButton.style.display = 'block';
+            navButton.style.width = '35px';
+            navButton.style.height = '35px';
+            navButton.style.margin = '0.2rem 0';
+            navButton.style.border = 'none';
+            navButton.style.borderRadius = '50%';
+            navButton.style.background = day === today ? '#28a745' : '#f8f9fa';
+            navButton.style.color = day === today ? 'white' : '#333';
+            navButton.style.fontSize = '0.8rem';
+            navButton.style.cursor = 'pointer';
+            
+            navButton.onclick = function() {
+                dayElement.scrollIntoView({ behavior: 'smooth' });
+            };
+            
+            dayNavigation.appendChild(navButton);
+        }
+    });
+    
+    if (dayNavigation.children.length > 0) {
+        document.body.appendChild(dayNavigation);
+        
+        // Show navigation on scroll
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            dayNavigation.style.display = 'block';
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                dayNavigation.style.display = 'none';
+            }, 3000);
+        });
+    }
+    
+    // Add data attributes to day sections for navigation
+    document.querySelectorAll('.timetable-day').forEach((daySection, index) => {
+        const dayName = Object.keys({{ timetable_by_day|safe }})[index];
+        if (dayName) {
+            daySection.setAttribute('data-day', dayName);
+        }
+    });
+});
+
+// Print styles
+const printStyles = document.createElement('style');
+printStyles.textContent = `
+    @media print {
+        header, footer, .btn, .search-section { display: none !important; }
+        .timetable-day { break-inside: avoid; margin-bottom: 1rem; }
+        .class-item { break-inside: avoid; }
+        body { background: white !important; }
+    }
+`;
+document.head.appendChild(printStyles);
+</script>
+{% endblock %}

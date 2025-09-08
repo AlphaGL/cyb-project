@@ -1,0 +1,153 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Manage Events - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">Manage Events</h1>
+            <p style="color: #666;">Create, edit, and manage all departmental events and activities.</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                ← Back to Dashboard
+            </a>
+            <a href="{% url 'admin_add_event' %}" class="btn btn-success">
+                <span>➕</span> Add New Event
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if events %}
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">All Events ({{ events|length }})</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Event Title</th>
+                            <th>Department</th>
+                            <th>Type</th>
+                            <th>Date & Time</th>
+                            <th>Venue</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in events %}
+                            <tr {% if not event.is_active %}style="opacity: 0.6;"{% endif %}>
+                                <td>
+                                    <strong>{{ event.title|truncatechars:40 }}</strong>
+                                    <br>
+                                    <small style="color: #666;">{{ event.description|truncatechars:60 }}</small>
+                                </td>
+                                <td>
+                                    <span style="background: #f8f9fa; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                        {{ event.department.code }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="background: #e7f3ff; color: #0066cc; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                        {{ event.get_event_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <small><strong>{{ event.start_date|date:"M d, Y" }}</strong></small>
+                                    <br>
+                                    <small style="color: #666;">{{ event.start_date|date:"g:i A" }} - {{ event.end_date|date:"g:i A" }}</small>
+                                </td>
+                                <td>
+                                    <small>{{ event.venue }}</small>
+                                </td>
+                                <td>
+                                    {% if event.is_today %}
+                                        <span style="color: #28a745; font-weight: bold;">Today</span>
+                                    {% elif event.is_upcoming %}
+                                        <span style="color: #667eea; font-weight: bold;">Upcoming</span>
+                                    {% else %}
+                                        <span style="color: #6c757d; font-weight: bold;">Past</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <a href="{% url 'admin_edit_event' event.id %}" 
+                                           class="btn btn-primary btn-sm" title="Edit">
+                                            ✏️
+                                        </a>
+                                        <a href="{% url 'admin_delete_event' event.id %}" 
+                                           class="btn btn-danger btn-sm" title="Delete"
+                                           onclick="return confirm('Are you sure you want to delete this event?')">
+                                            🗑️
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">📅</div>
+            <h3 style="color: #666; margin-bottom: 1rem;">No Events Yet</h3>
+            <p style="color: #888; margin-bottom: 2rem;">
+                Start by creating your first event to keep students informed about upcoming activities.
+            </p>
+            <a href="{% url 'admin_add_event' %}" class="btn btn-success">
+                <span>➕</span> Create First Event
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add search functionality
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search events...';
+    searchInput.className = 'form-input';
+    searchInput.style.marginBottom = '1rem';
+    
+    const cardHeader = document.querySelector('.card-header');
+    if (cardHeader && document.querySelector('tbody')) {
+        cardHeader.appendChild(searchInput);
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const title = row.cells[0].textContent.toLowerCase();
+                const department = row.cells[1].textContent.toLowerCase();
+                const venue = row.cells[4].textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || department.includes(searchTerm) || venue.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Sort functionality for table headers
+    const headers = document.querySelectorAll('th');
+    headers.forEach((header, index) => {
+        if (index < 6) { // Don't make Actions column sortable
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', () => sortTable(index));
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Admin Dashboard - Student Information Board{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">Admin Dashboard</h1>
+            <p style="color: #666;">Welcome back, {{ user.first_name|default:user.username }}! Manage your student information board.</p>
+        </div>
+        <div>
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <span>👁️</span> View Public Site
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 3rem; color: #667eea; margin-bottom: 0.5rem;">📢</div>
+            <h3 style="color: #333; margin-bottom: 0.5rem;">{{ total_announcements }}</h3>
+            <p style="color: #666; margin-bottom: 1rem;">Total Announcements</p>
+            <small style="color: #28a745;">{{ active_announcements }} active</small>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 3rem; color: #28a745; margin-bottom: 0.5rem;">📅</div>
+            <h3 style="color: #333; margin-bottom: 0.5rem;">{{ total_events }}</h3>
+            <p style="color: #666; margin-bottom: 1rem;">Total Events</p>
+            <small style="color: #667eea;">{{ upcoming_events }} upcoming</small>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 3rem; color: #fd7e14; margin-bottom: 0.5rem;">🕒</div>
+            <h3 style="color: #333; margin-bottom: 0.5rem;">Active</h3>
+            <p style="color: #666; margin-bottom: 1rem;">Timetable System</p>
+            <small style="color: #28a745;">All schedules updated</small>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 1.5rem;">
+            <div style="font-size: 3rem; color: #dc3545; margin-bottom: 0.5rem;">📊</div>
+            <h3 style="color: #333; margin-bottom: 0.5rem;">Results</h3>
+            <p style="color: #666; margin-bottom: 1rem;">Examination System</p>
+            <small style="color: #28a745;">Ready for updates</small>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h2 style="margin: 0;">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <a href="{% url 'admin_add_announcement' %}" class="btn btn-primary" style="padding: 1rem; text-align: center; display: block;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">➕</div>
+                <strong>New Announcement</strong>
+            </a>
+            <a href="{% url 'admin_add_event' %}" class="btn btn-success" style="padding: 1rem; text-align: center; display: block;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📅</div>
+                <strong>Add Event</strong>
+            </a>
+            <a href="{% url 'admin_add_timetable' %}" class="btn btn-secondary" style="padding: 1rem; text-align: center; display: block;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🕒</div>
+                <strong>Update Timetable</strong>
+            </a>
+            <a href="{% url 'admin_add_result' %}" class="btn btn-danger" style="padding: 1rem; text-align: center; display: block;">
+                <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📊</div>
+                <strong>Add Result</strong>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Management Sections -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+    <!-- Announcements Management -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">📢 Announcements</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">Manage departmental announcements and notices.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'admin_announcements' %}" class="btn btn-primary btn-sm">
+                    View All Announcements
+                </a>
+                <a href="{% url 'admin_add_announcement' %}" class="btn btn-success btn-sm">
+                    Create New Announcement
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Management -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">📅 Events</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">Schedule and manage departmental events.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'admin_events' %}" class="btn btn-primary btn-sm">
+                    View All Events
+                </a>
+                <a href="{% url 'admin_add_event' %}" class="btn btn-success btn-sm">
+                    Create New Event
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timetable Management -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">🕒 Timetables</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">Manage class schedules and timetables.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'admin_timetables' %}" class="btn btn-primary btn-sm">
+                    View All Timetables
+                </a>
+                <a href="{% url 'admin_add_timetable' %}" class="btn btn-success btn-sm">
+                    Add Timetable Entry
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Management -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">📊 Results</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">Publish and manage examination results.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'admin_results' %}" class="btn btn-primary btn-sm">
+                    View All Results
+                </a>
+                <a href="{% url 'admin_add_result' %}" class="btn btn-success btn-sm">
+                    Add New Result
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments Management -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">🏛️ Departments</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">Manage department information and settings.</p>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="{% url 'admin_departments' %}" class="btn btn-primary btn-sm">
+                    View All Departments
+                </a>
+                <a href="{% url 'admin_add_department' %}" class="btn btn-success btn-sm">
+                    Add New Department
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="card">
+        <div class="card-header">
+            <h3 style="margin: 0;">ℹ️ System Info</h3>
+        </div>
+        <div class="card-body">
+            <p style="color: #666; margin-bottom: 1rem;">System status and information.</p>
+            <div style="font-size: 0.9rem; color: #666;">
+                <p><strong>Logged in as:</strong> {{ user.username }}</p>
+                <p><strong>Last login:</strong> {{ user.last_login|date:"M d, Y - g:i A" }}</p>
+                <p><strong>Status:</strong> <span style="color: #28a745;">Active</span></p>
+            </div>
+            <a href="{% url 'admin_logout' %}" class="btn btn-secondary btn-sm" style="margin-top: 1rem;">
+                Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.transition = 'transform 0.2s ease';
+            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        });
+    });
+
+    // Simple notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type}`;
+        notification.textContent = message;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '1000';
+        notification.style.minWidth = '300px';
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    // Check for new updates periodically (simple implementation)
+    setInterval(function() {
+        // This is a placeholder for real-time updates
+        console.log('Checking for updates...');
+    }, 60000); // Check every minute
+});
+</script>
+{% endblock %}

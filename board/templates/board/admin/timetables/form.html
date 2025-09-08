@@ -1,0 +1,367 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">{{ title }}</h1>
+            <p style="color: #666;">Fill in the details below to create or update a timetable entry.</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_timetables' %}" class="btn btn-secondary">
+                Back to Timetables
+            </a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+    <!-- Main Form -->
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">Timetable Entry Details</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" id="timetableForm">
+                {% csrf_token %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.course_code.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Course Code
+                        </label>
+                        {{ form.course_code }}
+                        {% if form.course_code.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.course_code.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.department.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Department
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.department.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.course_title.id_for_label }}">
+                        <span style="color: #dc3545;">*</span> Course Title
+                    </label>
+                    {{ form.course_title }}
+                    {% if form.course_title.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.course_title.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.lecturer.id_for_label }}">
+                        <span style="color: #dc3545;">*</span> Lecturer
+                    </label>
+                    {{ form.lecturer }}
+                    {% if form.lecturer.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.lecturer.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.day_of_week.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Day of Week
+                        </label>
+                        {{ form.day_of_week }}
+                        {% if form.day_of_week.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.day_of_week.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.start_time.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Start Time
+                        </label>
+                        {{ form.start_time }}
+                        {% if form.start_time.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.start_time.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.end_time.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> End Time
+                        </label>
+                        {{ form.end_time }}
+                        {% if form.end_time.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.end_time.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.venue.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Venue
+                        </label>
+                        {{ form.venue }}
+                        {% if form.venue.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.venue.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.level.id_for_label }}">Level</label>
+                        {{ form.level }}
+                        {% if form.level.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.level.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.semester.id_for_label }}">Semester</label>
+                        {{ form.semester }}
+                        {% if form.semester.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.semester.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-success">
+                        <span>💾</span> Save Timetable Entry
+                    </button>
+                    <a href="{% url 'admin_timetables' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Preview Card -->
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">Preview</h3>
+            </div>
+            <div class="card-body" id="preview">
+                <div class="class-item" style="border-left: 4px solid #667eea;">
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center;">
+                        <!-- Time -->
+                        <div style="text-align: center; min-width: 80px;">
+                            <div id="previewTime" style="background: #667eea; color: white; padding: 0.5rem; border-radius: 5px; font-weight: bold; font-size: 0.8rem;">
+                                Time
+                            </div>
+                        </div>
+                        
+                        <!-- Course Details -->
+                        <div>
+                            <h4 id="previewCourse" style="color: #333; margin-bottom: 0.3rem; font-size: 0.9rem;">
+                                Course Code - Course Title
+                            </h4>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                <div id="previewDetails">Lecturer • Venue • Level</div>
+                                <div id="previewDay" style="margin-top: 0.2rem; font-weight: bold;">Day of Week</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">Guidelines</h3>
+            </div>
+            <div class="card-body">
+                <ul style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                    <li><strong>Course Code:</strong> Use standard format (e.g., CIT306)</li>
+                    <li><strong>Title:</strong> Full course name</li>
+                    <li><strong>Lecturer:</strong> Full name or title</li>
+                    <li><strong>Venue:</strong> Include room number/building</li>
+                    <li><strong>Time:</strong> Ensure no conflicts exist</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Time Conflicts Warning -->
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">Time Conflicts</h3>
+            </div>
+            <div class="card-body">
+                <div id="conflictWarning" style="display: none; color: #dc3545; font-size: 0.9rem;">
+                    <strong>Warning:</strong> Potential scheduling conflict detected!
+                </div>
+                <div id="noConflict" style="color: #28a745; font-size: 0.9rem;">
+                    <strong>Good:</strong> No obvious conflicts detected.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('timetableForm');
+    const courseCodeInput = form.querySelector('input[name="course_code"]');
+    const courseTitleInput = form.querySelector('input[name="course_title"]');
+    const lecturerInput = form.querySelector('input[name="lecturer"]');
+    const venueInput = form.querySelector('input[name="venue"]');
+    const daySelect = form.querySelector('select[name="day_of_week"]');
+    const startTimeInput = form.querySelector('input[name="start_time"]');
+    const endTimeInput = form.querySelector('input[name="end_time"]');
+    const levelInput = form.querySelector('input[name="level"]');
+    
+    // Preview elements
+    const previewTime = document.getElementById('previewTime');
+    const previewCourse = document.getElementById('previewCourse');
+    const previewDetails = document.getElementById('previewDetails');
+    const previewDay = document.getElementById('previewDay');
+    
+    // Real-time preview
+    function updatePreview() {
+        const courseCode = courseCodeInput.value.trim() || 'Course Code';
+        const courseTitle = courseTitleInput.value.trim() || 'Course Title';
+        const lecturer = lecturerInput.value.trim() || 'Lecturer';
+        const venue = venueInput.value.trim() || 'Venue';
+        const level = levelInput.value.trim() || 'Level';
+        const day = daySelect.options[daySelect.selectedIndex]?.text || 'Day of Week';
+        
+        previewCourse.textContent = `${courseCode} - ${courseTitle}`;
+        previewDetails.textContent = `${lecturer} • ${venue} • ${level}`;
+        previewDay.textContent = day;
+        
+        // Time preview
+        if (startTimeInput.value && endTimeInput.value) {
+            const startTime = new Date(`2000-01-01T${startTimeInput.value}`);
+            const endTime = new Date(`2000-01-01T${endTimeInput.value}`);
+            
+            if (!isNaN(startTime.getTime()) && !isNaN(endTime.getTime())) {
+                const startStr = startTime.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                const endStr = endTime.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                previewTime.textContent = `${startStr}-${endStr}`;
+            } else {
+                previewTime.textContent = 'Time';
+            }
+        } else {
+            previewTime.textContent = 'Time';
+        }
+    }
+    
+    // Attach listeners
+    [courseCodeInput, courseTitleInput, lecturerInput, venueInput, levelInput].forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+    
+    [daySelect, startTimeInput, endTimeInput].forEach(input => {
+        input.addEventListener('change', updatePreview);
+    });
+    
+    // Initial preview
+    updatePreview();
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = [courseCodeInput, courseTitleInput, lecturerInput, venueInput, daySelect, startTimeInput, endTimeInput];
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#dc3545';
+                isValid = false;
+            } else {
+                field.style.borderColor = '#ddd';
+            }
+        });
+        
+        // Validate times
+        if (startTimeInput.value && endTimeInput.value) {
+            const startTime = new Date(`2000-01-01T${startTimeInput.value}`);
+            const endTime = new Date(`2000-01-01T${endTimeInput.value}`);
+            
+            if (endTime <= startTime) {
+                alert('End time must be after start time.');
+                endTimeInput.style.borderColor = '#dc3545';
+                startTimeInput.style.borderColor = '#dc3545';
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields and ensure times are valid.');
+            return;
+        }
+        
+        // Add loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        addLoadingState(submitButton);
+    });
+    
+    // Course code formatting
+    courseCodeInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+    
+    // Time conflict detection (basic)
+    function checkTimeConflicts() {
+        if (daySelect.value && startTimeInput.value && endTimeInput.value && venueInput.value) {
+            // This is a basic implementation - in a real system, you'd check against existing entries
+            const conflictWarning = document.getElementById('conflictWarning');
+            const noConflict = document.getElementById('noConflict');
+            
+            // Simulate conflict check (you'd implement actual checking here)
+            const hasConflict = false; // Replace with actual conflict checking logic
+            
+            if (hasConflict) {
+                conflictWarning.style.display = 'block';
+                noConflict.style.display = 'none';
+            } else {
+                conflictWarning.style.display = 'none';
+                noConflict.style.display = 'block';
+            }
+        }
+    }
+    
+    [daySelect, startTimeInput, endTimeInput, venueInput].forEach(input => {
+        input.addEventListener('change', checkTimeConflicts);
+    });
+});
+</script>
+{% endblock %}

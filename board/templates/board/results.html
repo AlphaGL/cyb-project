@@ -1,0 +1,319 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Examination Results - Student Information Board{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="margin-bottom: 2rem;">
+    <h1 style="color: #333; margin-bottom: 0.5rem;">
+        <span style="color: #dc3545;">📊</span> Examination Results
+    </h1>
+    <p style="color: #666;">Access published examination results by department, session, and course.</p>
+</div>
+
+<!-- Filter Section -->
+<div class="search-section">
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="department">Filter by Department</label>
+            <select id="department" name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept.id|stringformat:'s' == department_filter %}selected{% endif %}>
+                        {{ dept.name }} ({{ dept.code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="session">Filter by Session</label>
+            <select id="session" name="session" class="form-select">
+                <option value="">All Sessions</option>
+                {% for session in sessions %}
+                    <option value="{{ session }}" {% if session == session_filter %}selected{% endif %}>
+                        {{ session }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">
+                <span>🔍</span> Filter
+            </button>
+            <a href="{% url 'results' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Filter Info -->
+{% if department_filter or session_filter %}
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; border-left: 4px solid #dc3545;">
+        <p style="margin: 0; color: #333;">
+            <strong>Showing results for:</strong>
+            {% if department_filter %}
+                {% for dept in departments %}
+                    {% if dept.id|stringformat:'s' == department_filter %}
+                        Department: <em>{{ dept.name }}</em>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            {% if session_filter %}
+                Session: <em>{{ session_filter }}</em>
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+
+<!-- Results List -->
+{% if results %}
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">Published Results ({{ results|length }})</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Department</th>
+                            <th>Session</th>
+                            <th>Semester</th>
+                            <th>Level</th>
+                            <th>Published</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                            <tr>
+                                <td>
+                                    <strong>{{ result.course_code }}</strong><br>
+                                    <small style="color: #666;">{{ result.course_title }}</small>
+                                </td>
+                                <td>
+                                    <span style="background: #f8f9fa; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem; border: 1px solid #dee2e6;">
+                                        {{ result.department.code }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>{{ result.session }}</strong>
+                                </td>
+                                <td>
+                                    <span style="background: #e7f3ff; color: #0066cc; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                        {{ result.get_semester_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong>{{ result.level }}</strong>
+                                </td>
+                                <td>
+                                    <small>{{ result.created_at|date:"M d, Y" }}</small><br>
+                                    <small style="color: #666;">{{ result.created_at|date:"g:i A" }}</small>
+                                </td>
+                                <td>
+                                    {% if result.file_url %}
+                                        <a href="{{ result.file_url }}" target="_blank" class="btn btn-primary btn-sm">
+                                            📄 View Result
+                                        </a>
+                                    {% else %}
+                                        <span style="color: #666; font-size: 0.9rem;">No link available</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if result.description %}
+                                <tr style="background: #f8f9fa;">
+                                    <td colspan="7" style="padding: 0.5rem 1rem; border-top: none;">
+                                        <small style="color: #666;">
+                                            <strong>Note:</strong> {{ result.description }}
+                                        </small>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Important Notice -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-radius: 8px; border-left: 4px solid #ffc107;">
+        <h3 style="color: #856404; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> Important Notice
+        </h3>
+        <div style="color: #856404; line-height: 1.6;">
+            <ul style="margin: 0; padding-left: 1.5rem;">
+                <li><strong>Result Verification:</strong> Always verify your results with the department office.</li>
+                <li><strong>Corrections:</strong> Report any discrepancies immediately to your department.</li>
+                <li><strong>Official Copy:</strong> These are for reference only. Obtain official transcripts from the Registry.</li>
+                <li><strong>Grades Query:</strong> Contact your course lecturer for grade-related inquiries.</li>
+            </ul>
+        </div>
+    </div>
+
+{% else %}
+    <!-- No results found -->
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">📊</div>
+            <h3 style="color: #666; margin-bottom: 1rem;">
+                {% if department_filter or session_filter %}
+                    No results match your filters
+                {% else %}
+                    No results published yet
+                {% endif %}
+            </h3>
+            <p style="color: #888; margin-bottom: 2rem;">
+                {% if department_filter or session_filter %}
+                    Try adjusting your filters or clear them to see all published results.
+                {% else %}
+                    Examination results will appear here once they are published by the departments.
+                {% endif %}
+            </p>
+            {% if department_filter or session_filter %}
+                <a href="{% url 'results' %}" class="btn btn-primary">
+                    View All Results
+                </a>
+            {% else %}
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    ← Back to Home
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Help Section -->
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h3 style="margin: 0;">❓ Need Help?</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div>
+                <h4 style="color: #333; margin-bottom: 0.5rem;">📞 Contact Departments</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                    Get in touch with your department for result-related queries.
+                </p>
+                <ul style="font-size: 0.9rem; color: #555;">
+                    {% for dept in departments %}
+                        <li><strong>{{ dept.code }}:</strong> {{ dept.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h4 style="color: #333; margin-bottom: 0.5rem;">🏢 Registry Office</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                    For official transcripts and documentation.
+                </p>
+                <p style="font-size: 0.9rem; color: #555;">
+                    <strong>Location:</strong> Administrative Block<br>
+                    <strong>Hours:</strong> Monday - Friday, 8:00 AM - 4:00 PM
+                </p>
+            </div>
+            <div>
+                <h4 style="color: #333; margin-bottom: 0.5rem;">💬 Student Support</h4>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                    General academic and administrative support.
+                </p>
+                <p style="font-size: 0.9rem; color: #555;">
+                    <strong>Email:</strong> support@sict.futo.edu.ng<br>
+                    <strong>Phone:</strong> +234 xxx xxxx xxx
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add result statistics
+    if (document.querySelector('.table')) {
+        const rows = document.querySelectorAll('tbody tr:not([style*="background: #f8f9fa"])');
+        const departments = new Set();
+        const sessions = new Set();
+        
+        rows.forEach(row => {
+            const deptCell = row.cells[1];
+            const sessionCell = row.cells[2];
+            
+            if (deptCell) departments.add(deptCell.textContent.trim());
+            if (sessionCell) sessions.add(sessionCell.textContent.trim());
+        });
+        
+        // Add statistics card
+        const statsCard = document.createElement('div');
+        statsCard.className = 'card';
+        statsCard.style.marginBottom = '2rem';
+        statsCard.innerHTML = `
+            <div class="card-header">
+                <h3 style="margin: 0;">📈 Results Statistics</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; text-align: center;">
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                        <h4 style="color: #333; margin-bottom: 0.5rem;">Total Results</h4>
+                        <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin: 0;">${rows.length}</p>
+                    </div>
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                        <h4 style="color: #333; margin-bottom: 0.5rem;">Departments</h4>
+                        <p style="font-size: 1.5rem; color: #28a745; font-weight: bold; margin: 0;">${departments.size}</p>
+                    </div>
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                        <h4 style="color: #333; margin-bottom: 0.5rem;">Sessions</h4>
+                        <p style="font-size: 1.5rem; color: #fd7e14; font-weight: bold; margin: 0;">${sessions.size}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const mainCard = document.querySelector('.card');
+        mainCard.parentNode.insertBefore(statsCard, mainCard);
+    }
+    
+    // Add search functionality within the table
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Search results by course code or title...';
+    searchInput.className = 'form-input';
+    searchInput.style.marginBottom = '1rem';
+    
+    const cardHeader = document.querySelector('.card-header');
+    if (cardHeader) {
+        cardHeader.appendChild(searchInput);
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr:not([style*="background: #f8f9fa"])');
+            
+            rows.forEach(row => {
+                const courseCode = row.cells[0].textContent.toLowerCase();
+                const courseTitle = row.cells[0].textContent.toLowerCase();
+                const nextRow = row.nextElementSibling;
+                
+                if (courseCode.includes(searchTerm) || courseTitle.includes(searchTerm)) {
+                    row.style.display = '';
+                    if (nextRow && nextRow.style.background === 'rgb(248, 249, 250)') {
+                        nextRow.style.display = '';
+                    }
+                } else {
+                    row.style.display = 'none';
+                    if (nextRow && nextRow.style.background === 'rgb(248, 249, 250)') {
+                        nextRow.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+    
+    // Track result views
+    document.querySelectorAll('a[href*="http"]').forEach(link => {
+        link.addEventListener('click', function() {
+            console.log('Result viewed:', this.href);
+            // You can add analytics tracking here
+        });
+    });
+});
+</script>
+{% endblock %}

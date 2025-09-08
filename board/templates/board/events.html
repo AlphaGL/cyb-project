@@ -1,0 +1,244 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Events - Student Information Board{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="margin-bottom: 2rem;">
+    <h1 style="color: #333; margin-bottom: 0.5rem;">
+        <span style="color: #28a745;">📅</span> Events Calendar
+    </h1>
+    <p style="color: #666;">Discover upcoming departmental events, workshops, seminars, and important dates.</p>
+</div>
+
+<!-- Search and Filter -->
+<div class="search-section">
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="search">Search Events</label>
+            <input type="text" id="search" name="search" value="{{ search_query }}" 
+                   class="form-input" placeholder="Search by title or description...">
+        </div>
+        <div class="form-group">
+            <label for="department">Filter by Department</label>
+            <select id="department" name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept.id|stringformat:'s' == department_filter %}selected{% endif %}>
+                        {{ dept.name }} ({{ dept.code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">
+                <span>🔍</span> Search
+            </button>
+            <a href="{% url 'events' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Events List -->
+{% if events %}
+    <div style="display: grid; gap: 1.5rem;">
+        {% for event in events %}
+            <div class="card {% if event.is_today %}" style="border-left: 4px solid #28a745;{% elif event.is_upcoming %}" style="border-left: 4px solid #667eea;{% else %}" style="opacity: 0.7;{% endif %}">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <h2 class="card-title" style="color: #333; margin-bottom: 0.5rem;">
+                            {{ event.title }}
+                        </h2>
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                            <small style="color: #666;">
+                                <strong>{{ event.department.name }}</strong>
+                            </small>
+                            <small style="color: #666;">
+                                📍 {{ event.venue }}
+                            </small>
+                            <small style="color: #666;">
+                                🏷️ {{ event.get_event_type_display }}
+                            </small>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        {% if event.is_today %}
+                            <span style="background: #28a745; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                TODAY
+                            </span>
+                        {% elif event.is_upcoming %}
+                            <span style="background: #667eea; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                UPCOMING
+                            </span>
+                        {% else %}
+                            <span style="background: #6c757d; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                PAST
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: #555; line-height: 1.7;">
+                            {{ event.description }}
+                        </p>
+                    </div>
+                    
+                    <!-- Event Details -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                        <div>
+                            <strong style="color: #333; display: block; margin-bottom: 0.2rem;">📅 Start Date & Time</strong>
+                            <span style="color: #666;">{{ event.start_date|date:"F d, Y" }}</span><br>
+                            <span style="color: #666;">{{ event.start_date|date:"g:i A" }}</span>
+                        </div>
+                        <div>
+                            <strong style="color: #333; display: block; margin-bottom: 0.2rem;">⏰ End Date & Time</strong>
+                            <span style="color: #666;">{{ event.end_date|date:"F d, Y" }}</span><br>
+                            <span style="color: #666;">{{ event.end_date|date:"g:i A" }}</span>
+                        </div>
+                        <div>
+                            <strong style="color: #333; display: block; margin-bottom: 0.2rem;">📍 Venue</strong>
+                            <span style="color: #666;">{{ event.venue }}</span>
+                        </div>
+                        <div>
+                            <strong style="color: #333; display: block; margin-bottom: 0.2rem;">👤 Organized By</strong>
+                            <span style="color: #666;">{{ event.department.name }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info for Upcoming Events -->
+                    {% if event.is_upcoming %}
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: #d4edda; border-left: 4px solid #28a745; border-radius: 0 5px 5px 0;">
+                            <small style="color: #155724;">
+                                <strong>📝 Note:</strong> Mark your calendar! This event is coming up.
+                                {% now "Y-m-d H:i" as current_datetime %}
+                                {% if event.start_date|date:"Y-m-d H:i" > current_datetime %}
+                                    Starting in {{ event.start_date|timeuntil }}.
+                                {% endif %}
+                            </small>
+                        </div>
+                    {% endif %}
+
+                    {% if event.is_today %}
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 0 5px 5px 0;">
+                            <small style="color: #856404;">
+                                <strong>🔥 Happening Now:</strong> This event is scheduled for today!
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- No events found -->
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">📅</div>
+            <h3 style="color: #666; margin-bottom: 1rem;">
+                {% if search_query or department_filter %}
+                    No events match your search
+                {% else %}
+                    No events scheduled
+                {% endif %}
+            </h3>
+            <p style="color: #888; margin-bottom: 2rem;">
+                {% if search_query or department_filter %}
+                    Try adjusting your search criteria or clear the filters to see all events.
+                {% else %}
+                    Check back later for new events and activities.
+                {% endif %}
+            </p>
+            {% if search_query or department_filter %}
+                <a href="{% url 'events' %}" class="btn btn-primary">
+                    View All Events
+                </a>
+            {% else %}
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    ← Back to Home
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add countdown timer for upcoming events
+    const upcomingEvents = document.querySelectorAll('[data-event-date]');
+    
+    upcomingEvents.forEach(eventElement => {
+        const eventDate = new Date(eventElement.dataset.eventDate);
+        const now = new Date();
+        
+        if (eventDate > now) {
+            // Create countdown element
+            const countdown = document.createElement('div');
+            countdown.style.marginTop = '0.5rem';
+            countdown.style.padding = '0.5rem';
+            countdown.style.background = '#e7f3ff';
+            countdown.style.borderRadius = '3px';
+            countdown.style.fontSize = '0.9rem';
+            countdown.style.color = '#0066cc';
+            
+            eventElement.appendChild(countdown);
+            
+            // Update countdown every second
+            const timer = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = eventDate.getTime() - now;
+                
+                if (distance < 0) {
+                    clearInterval(timer);
+                    countdown.innerHTML = '<strong>Event has started!</strong>';
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                
+                let countdownText = '<strong>⏳ Countdown: </strong>';
+                if (days > 0) countdownText += `${days} days, `;
+                countdownText += `${hours} hours, ${minutes} minutes remaining`;
+                
+                countdown.innerHTML = countdownText;
+            }, 60000); // Update every minute
+        }
+    });
+    
+    // Filter events by status
+    function filterEventsByStatus(status) {
+        const events = document.querySelectorAll('.card');
+        events.forEach(event => {
+            const statusBadge = event.querySelector('span');
+            if (status === 'all' || statusBadge.textContent.trim() === status) {
+                event.style.display = 'block';
+            } else {
+                event.style.display = 'none';
+            }
+        });
+    }
+    
+    // Add filter buttons
+    const filterContainer = document.createElement('div');
+    filterContainer.style.marginBottom = '1rem';
+    filterContainer.innerHTML = `
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button onclick="filterEventsByStatus('all')" class="btn btn-sm btn-secondary">All Events</button>
+            <button onclick="filterEventsByStatus('TODAY')" class="btn btn-sm btn-success">Today</button>
+            <button onclick="filterEventsByStatus('UPCOMING')" class="btn btn-sm btn-primary">Upcoming</button>
+            <button onclick="filterEventsByStatus('PAST')" class="btn btn-sm" style="background: #6c757d; color: white;">Past</button>
+        </div>
+    `;
+    
+    const eventsContainer = document.querySelector('.card') ? document.querySelector('.card').parentNode : null;
+    if (eventsContainer && document.querySelectorAll('.card').length > 1) {
+        eventsContainer.insertBefore(filterContainer, eventsContainer.firstChild);
+    }
+    
+    // Make filter function global
+    window.filterEventsByStatus = filterEventsByStatus;
+});
+</script>
+{% endblock %}

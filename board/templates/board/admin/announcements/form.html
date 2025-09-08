@@ -1,0 +1,263 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">{{ title }}</h1>
+            <p style="color: #666;">Fill in the details below to create or update an announcement.</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_announcements' %}" class="btn btn-secondary">
+                ← Back to Announcements
+            </a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+    <!-- Main Form -->
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">Announcement Details</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" id="announcementForm">
+                {% csrf_token %}
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.title.id_for_label }}">
+                        <span style="color: #dc3545;">*</span> Title
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.title.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Keep it clear and concise. This will be the main headline.
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.content.id_for_label }}">
+                        <span style="color: #dc3545;">*</span> Content
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.content.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Provide detailed information about the announcement.
+                    </small>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.department.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Department
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.department.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.priority.id_for_label }}">Priority Level</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.priority.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="{{ form.expires_at.id_for_label }}">Expiration Date & Time</label>
+                    {{ form.expires_at }}
+                    {% if form.expires_at.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.expires_at.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Optional: Set when this announcement should no longer be displayed.
+                    </small>
+                </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-success">
+                        <span>💾</span> Save Announcement
+                    </button>
+                    <a href="{% url 'admin_announcements' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Preview Card -->
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">Preview</h3>
+            </div>
+            <div class="card-body" id="preview">
+                <div id="previewContent">
+                    <h4 style="color: #333; margin-bottom: 0.5rem;" id="previewTitle">
+                        Enter title above...
+                    </h4>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;" id="previewMeta">
+                        Department • Priority • Date
+                    </p>
+                    <p style="color: #555;" id="previewText">
+                        Enter content above...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">📝 Guidelines</h3>
+            </div>
+            <div class="card-body">
+                <ul style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                    <li><strong>Title:</strong> Keep under 100 characters</li>
+                    <li><strong>Content:</strong> Be clear and specific</li>
+                    <li><strong>Priority:</strong> Use "Urgent" sparingly</li>
+                    <li><strong>Expiry:</strong> Set for time-sensitive info</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Priority Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">🎯 Priority Levels</h3>
+            </div>
+            <div class="card-body" style="font-size: 0.9rem;">
+                <div style="margin-bottom: 0.5rem;">
+                    <span class="priority-badge priority-low">Low</span>
+                    <span style="color: #666; margin-left: 0.5rem;">General information</span>
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <span class="priority-badge priority-medium">Medium</span>
+                    <span style="color: #666; margin-left: 0.5rem;">Important notices</span>
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <span class="priority-badge priority-high">High</span>
+                    <span style="color: #666; margin-left: 0.5rem;">Critical updates</span>
+                </div>
+                <div>
+                    <span class="priority-badge priority-urgent">Urgent</span>
+                    <span style="color: #666; margin-left: 0.5rem;">Immediate action</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('announcementForm');
+    const titleInput = form.querySelector('input[name="title"]');
+    const contentInput = form.querySelector('textarea[name="content"]');
+    const departmentSelect = form.querySelector('select[name="department"]');
+    const prioritySelect = form.querySelector('select[name="priority"]');
+    
+    // Preview elements
+    const previewTitle = document.getElementById('previewTitle');
+    const previewMeta = document.getElementById('previewMeta');
+    const previewText = document.getElementById('previewText');
+    
+    // Real-time preview
+    function updatePreview() {
+        const title = titleInput.value.trim() || 'Enter title above...';
+        const content = contentInput.value.trim() || 'Enter content above...';
+        const department = departmentSelect.options[departmentSelect.selectedIndex]?.text || 'Department';
+        const priority = prioritySelect.options[prioritySelect.selectedIndex]?.text || 'Priority';
+        const now = new Date().toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        
+        previewTitle.textContent = title;
+        previewMeta.textContent = `${department} • ${priority} • ${now}`;
+        previewText.textContent = content.length > 150 ? 
+            content.substring(0, 150) + '...' : content;
+    }
+    
+    // Attach listeners
+    titleInput.addEventListener('input', updatePreview);
+    contentInput.addEventListener('input', updatePreview);
+    departmentSelect.addEventListener('change', updatePreview);
+    prioritySelect.addEventListener('change', updatePreview);
+    
+    // Initial preview
+    updatePreview();
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = [titleInput, contentInput, departmentSelect];
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#dc3545';
+                isValid = false;
+            } else {
+                field.style.borderColor = '#ddd';
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Add loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        addLoadingState(submitButton);
+    });
+    
+    // Character counter for title
+    const titleCounter = document.createElement('small');
+    titleCounter.style.color = '#666';
+    titleCounter.style.display = 'block';
+    titleCounter.style.marginTop = '0.5rem';
+    titleInput.parentNode.appendChild(titleCounter);
+    
+    titleInput.addEventListener('input', function() {
+        const count = this.value.length;
+        titleCounter.textContent = `${count}/200 characters`;
+        
+        if (count > 180) {
+            titleCounter.style.color = '#dc3545';
+        } else if (count > 150) {
+            titleCounter.style.color = '#fd7e14';
+        } else {
+            titleCounter.style.color = '#666';
+        }
+    });
+    
+    // Trigger initial count
+    titleInput.dispatchEvent(new Event('input'));
+});
+</script>
+{% endblock %}

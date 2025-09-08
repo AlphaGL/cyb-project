@@ -1,0 +1,242 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Announcements - Student Information Board{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div style="margin-bottom: 2rem;">
+    <h1 style="color: #333; margin-bottom: 0.5rem;">
+        <span style="color: #667eea;">📢</span> Announcements
+    </h1>
+    <p style="color: #666;">Stay informed with the latest departmental announcements and notices.</p>
+</div>
+
+<!-- Search and Filter -->
+<div class="search-section">
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="search">Search Announcements</label>
+            <input type="text" id="search" name="search" value="{{ search_query }}" 
+                   class="form-input" placeholder="Search by title or content...">
+        </div>
+        <div class="form-group">
+            <label for="department">Filter by Department</label>
+            <select id="department" name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept.id|stringformat:'s' == department_filter %}selected{% endif %}>
+                        {{ dept.name }} ({{ dept.code }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">
+                <span>🔍</span> Search
+            </button>
+            <a href="{% url 'announcements' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Results Info -->
+{% if search_query or department_filter %}
+    <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1rem; border-left: 4px solid #667eea;">
+        <p style="margin: 0; color: #333;">
+            <strong>Showing results for:</strong>
+            {% if search_query %}
+                Search: "<em>{{ search_query }}</em>"
+            {% endif %}
+            {% if department_filter %}
+                {% for dept in departments %}
+                    {% if dept.id|stringformat:'s' == department_filter %}
+                        Department: <em>{{ dept.name }}</em>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+
+<!-- Announcements List -->
+{% if page_obj.object_list %}
+    <div style="margin-bottom: 2rem;">
+        {% for announcement in page_obj.object_list %}
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <h2 class="card-title" style="color: #333; margin-bottom: 0.5rem;">
+                            {{ announcement.title }}
+                        </h2>
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <small style="color: #666;">
+                                <strong>{{ announcement.department.name }}</strong> ({{ announcement.department.code }})
+                            </small>
+                            <small style="color: #666;">
+                                📅 {{ announcement.created_at|date:"M d, Y - g:i A" }}
+                            </small>
+                            {% if announcement.created_by.first_name %}
+                                <small style="color: #666;">
+                                    👤 {{ announcement.created_by.first_name }} {{ announcement.created_by.last_name }}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="priority-badge priority-{{ announcement.priority }}">
+                            {{ announcement.get_priority_display }}
+                        </span>
+                        {% if announcement.expires_at %}
+                            {% if announcement.is_expired %}
+                                <span style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                    EXPIRED
+                                </span>
+                            {% else %}
+                                <span style="background: #d1ecf1; color: #0c5460; padding: 0.25rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                    EXPIRES {{ announcement.expires_at|date:"M d" }}
+                                </span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div style="color: #555; line-height: 1.7; white-space: pre-line;">
+                        {{ announcement.content }}
+                    </div>
+                    
+                    {% if announcement.expires_at and not announcement.is_expired %}
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 0 5px 5px 0;">
+                            <small style="color: #856404;">
+                                <strong>⏰ Important:</strong> This announcement expires on 
+                                <strong>{{ announcement.expires_at|date:"F d, Y at g:i A" }}</strong>
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}">
+                    &laquo; First
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}">
+                    ‹ Previous
+                </a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}">
+                    Next ›
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if department_filter %}&department={{ department_filter }}{% endif %}">
+                    Last &raquo;
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+{% else %}
+    <!-- No announcements found -->
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">📢</div>
+            <h3 style="color: #666; margin-bottom: 1rem;">
+                {% if search_query or department_filter %}
+                    No announcements match your search
+                {% else %}
+                    No announcements available
+                {% endif %}
+            </h3>
+            <p style="color: #888; margin-bottom: 2rem;">
+                {% if search_query or department_filter %}
+                    Try adjusting your search criteria or clear the filters to see all announcements.
+                {% else %}
+                    Check back later for new announcements and updates.
+                {% endif %}
+            </p>
+            {% if search_query or department_filter %}
+                <a href="{% url 'announcements' %}" class="btn btn-primary">
+                    View All Announcements
+                </a>
+            {% else %}
+                <a href="{% url 'home' %}" class="btn btn-secondary">
+                    ← Back to Home
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Back to top button -->
+<div id="backToTop" style="position: fixed; bottom: 2rem; right: 2rem; display: none;">
+    <button onclick="scrollToTop()" class="btn btn-primary" style="border-radius: 50%; width: 50px; height: 50px;">
+        ↑
+    </button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide back to top button
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            backToTopBtn.style.display = 'block';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
+    });
+    
+    // Smooth scroll to top
+    window.scrollToTop = function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+    
+    // Highlight expired announcements
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const expiredBadge = card.querySelector('span:contains("EXPIRED")');
+        if (expiredBadge) {
+            card.style.opacity = '0.7';
+            card.style.borderLeft = '4px solid #dc3545';
+        }
+    });
+    
+    // Auto-refresh every 5 minutes
+    setInterval(function() {
+        if (!document.hidden) {
+            // Add a subtle indicator that content is being refreshed
+            const indicator = document.createElement('div');
+            indicator.textContent = 'Checking for updates...';
+            indicator.style.position = 'fixed';
+            indicator.style.top = '10px';
+            indicator.style.right = '10px';
+            indicator.style.background = '#667eea';
+            indicator.style.color = 'white';
+            indicator.style.padding = '0.5rem 1rem';
+            indicator.style.borderRadius = '5px';
+            indicator.style.fontSize = '0.8rem';
+            indicator.style.zIndex = '1000';
+            
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                indicator.remove();
+            }, 2000);
+        }
+    }, 300000); // 5 minutes
+});
+</script>
+{% endblock %}

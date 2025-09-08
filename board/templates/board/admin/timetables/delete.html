@@ -1,0 +1,79 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Delete Timetable Entry - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #dc3545; margin-bottom: 0.5rem;">Delete Timetable Entry</h1>
+            <p style="color: #666;">Are you sure you want to delete this timetable entry? This action cannot be undone.</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_timetables' %}" class="btn btn-secondary">
+                Back to Timetables
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> Confirm Deletion
+        </h2>
+    </div>
+    <div class="card-body">
+        <!-- Timetable Details -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 5px; margin-bottom: 1.5rem;">
+            <h3 style="color: #333; margin-bottom: 1rem;">{{ timetable.course_code }} - {{ timetable.course_title }}</h3>
+            
+            <div style="display: grid; gap: 0.75rem; font-size: 0.95rem;">
+                <div>
+                    <strong style="color: #555;">Department:</strong>
+                    <span style="color: #333;">{{ timetable.department.name }} ({{ timetable.department.code }})</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Day:</strong>
+                    <span style="color: #333; text-transform: capitalize;">{{ timetable.day_of_week }}</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Time:</strong>
+                    <span style="color: #333;">{{ timetable.start_time|date:"g:i A" }} - {{ timetable.end_time|date:"g:i A" }}</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Lecturer:</strong>
+                    <span style="color: #333;">{{ timetable.lecturer }}</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Venue:</strong>
+                    <span style="color: #333;">{{ timetable.venue }}</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Level:</strong>
+                    <span style="color: #333;">{{ timetable.level }}</span>
+                </div>
+                <div>
+                    <strong style="color: #555;">Semester:</strong>
+                    <span style="color: #333;">{{ timetable.semester }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+            <strong>Warning:</strong> This action is permanent. Once deleted, this timetable entry cannot be recovered.
+            Students will no longer see this class in their schedule.
+        </div>
+
+        <form method="post" style="display: flex; gap: 1rem; justify-content: center;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <span>🗑️</span> Yes, Delete Timetable Entry
+            </button>
+            <a href="{% url 'admin_timetables' %}" class="btn btn-secondary">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Admin Login - Student Information Board{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
+    <div class="card" style="width: 100%; max-width: 400px;">
+        <div class="card-header" style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 style="margin: 0;">Admin Login</h2>
+            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Access the administration panel</p>
+        </div>
+        <div class="card-body" style="padding: 2rem;">
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.username.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.password.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error" style="margin-bottom: 1rem;">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; margin-bottom: 1rem;">
+                    <span>🔐</span> Login to Admin Panel
+                </button>
+
+                <div style="text-align: center;">
+                    <a href="{% url 'home' %}" class="btn btn-secondary" style="width: 100%;">
+                        ← Back to Home
+                    </a>
+                </div>
+            </form>
+
+            <!-- Info Section -->
+            <div style="margin-top: 2rem; padding: 1rem; background-color: #f8f9fa; border-radius: 5px; border-left: 4px solid #667eea;">
+                <h4 style="color: #333; margin-bottom: 0.5rem;">Admin Access</h4>
+                <p style="color: #666; font-size: 0.9rem; margin: 0;">
+                    This area is restricted to authorized administrators only. 
+                    Please contact your system administrator if you need access.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    form.addEventListener('submit', function(e) {
+        // Basic validation
+        const username = form.querySelector('input[name="username"]').value;
+        const password = form.querySelector('input[name="password"]').value;
+        
+        if (!username.trim() || !password.trim()) {
+            e.preventDefault();
+            alert('Please enter both username and password.');
+            return;
+        }
+        
+        // Add loading state
+        addLoadingState(submitButton);
+    });
+    
+    // Focus on username field
+    const usernameField = form.querySelector('input[name="username"]');
+    if (usernameField) {
+        usernameField.focus();
+    }
+    
+    // Enter key navigation
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach((input, index) => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                } else {
+                    form.submit();
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

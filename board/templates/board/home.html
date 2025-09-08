@@ -1,0 +1,248 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Home - Student Information Board{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="card">
+    <div class="card-body" style="text-align: center; padding: 2rem;">
+        <h1 style="color: #667eea; margin-bottom: 1rem;">Welcome to SICT Information Board</h1>
+        <p style="font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto;">
+            Stay updated with the latest announcements, events, timetables, and results from the 
+            School of Information and Communication Technology, Federal University of Technology Owerri.
+        </p>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+    <div class="card" style="text-align: center;">
+        <div class="card-body">
+            <h3 style="color: #667eea; font-size: 2rem;">{{ announcements|length }}</h3>
+            <p style="color: #666;">Recent Announcements</p>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-body">
+            <h3 style="color: #28a745; font-size: 2rem;">{{ upcoming_events|length }}</h3>
+            <p style="color: #666;">Upcoming Events</p>
+        </div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div class="card-body">
+            <h3 style="color: #fd7e14; font-size: 2rem;">{{ departments|length }}</h3>
+            <p style="color: #666;">Departments</p>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <h2 style="margin-bottom: 1rem;">Search & Filter</h2>
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="search">Search Keywords</label>
+            <input type="text" id="search" name="search" value="{{ search_query }}" 
+                   class="form-input" placeholder="Search announcements...">
+        </div>
+        <div class="form-group">
+            <label for="department">Filter by Department</label>
+            <select id="department" name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if dept.id|stringformat:'s' == department_filter %}selected{% endif %}>
+                        {{ dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; align-items: end; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">
+                <span>🔍</span> Search
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Recent Announcements -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin: 2rem 0;">
+    <div>
+        <h2 style="margin-bottom: 1rem; color: #333;">
+            <span style="color: #667eea;">📢</span> Recent Announcements
+        </h2>
+        {% if announcements %}
+            {% for announcement in announcements %}
+                <div class="card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 class="card-title">{{ announcement.title }}</h3>
+                            <small style="color: #666;">
+                                {{ announcement.department.name }} • 
+                                {{ announcement.created_at|date:"M d, Y - g:i A" }}
+                            </small>
+                        </div>
+                    <div class="card-body">
+                        <p style="color: #555; line-height: 1.6;">
+                            {{ announcement.content|truncatewords:30 }}
+                        </p>
+                        {% if announcement.expires_at %}
+                            <small style="color: #dc3545;">
+                                <strong>Expires:</strong> {{ announcement.expires_at|date:"M d, Y - g:i A" }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{% url 'announcements' %}" class="btn btn-primary">
+                    View All Announcements →
+                </a>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: 2rem;">
+                    <p style="color: #666; font-size: 1.1rem;">No announcements found.</p>
+                    {% if search_query or department_filter %}
+                        <a href="{% url 'home' %}" class="btn btn-secondary">Clear Filters</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Upcoming Events Sidebar -->
+    <div>
+        <h2 style="margin-bottom: 1rem; color: #333;">
+            <span style="color: #28a745;">📅</span> Upcoming Events
+        </h2>
+        {% if upcoming_events %}
+            {% for event in upcoming_events %}
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div class="card-body" style="padding: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem; color: #333;">{{ event.title }}</h4>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                            {{ event.description|truncatewords:15 }}
+                        </p>
+                        <div style="font-size: 0.8rem; color: #888;">
+                            <div><strong>Date:</strong> {{ event.start_date|date:"M d, Y" }}</div>
+                            <div><strong>Time:</strong> {{ event.start_date|date:"g:i A" }}</div>
+                            <div><strong>Venue:</strong> {{ event.venue }}</div>
+                            <div><strong>Type:</strong> {{ event.get_event_type_display }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div style="text-align: center;">
+                <a href="{% url 'events' %}" class="btn btn-success btn-sm">
+                    View All Events →
+                </a>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body" style="text-align: center; padding: 1.5rem;">
+                    <p style="color: #666;">No upcoming events.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="card" style="margin: 2rem 0;">
+    <div class="card-header">
+        <h2 style="margin: 0;">Quick Links</h2>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <a href="{% url 'announcements' %}" class="btn btn-primary" style="padding: 1.5rem; text-align: center; display: block;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📢</div>
+                <div><strong>All Announcements</strong></div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">View all departmental notices</div>
+            </a>
+            <a href="{% url 'timetable' %}" class="btn btn-success" style="padding: 1.5rem; text-align: center; display: block;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🕒</div>
+                <div><strong>Class Timetables</strong></div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">Check your class schedule</div>
+            </a>
+            <a href="{% url 'events' %}" class="btn btn-secondary" style="padding: 1.5rem; text-align: center; display: block;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                <div><strong>Events Calendar</strong></div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">Upcoming departmental events</div>
+            </a>
+            <a href="{% url 'results' %}" class="btn btn-danger" style="padding: 1.5rem; text-align: center; display: block;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                <div><strong>Examination Results</strong></div>
+                <div style="font-size: 0.9rem; opacity: 0.8;">Check published results</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Department Information -->
+<div class="card">
+    <div class="card-header">
+        <h2 style="margin: 0;">Our Departments</h2>
+    </div>
+    <div class="card-body">
+        {% if departments %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                {% for dept in departments %}
+                    <div style="border: 1px solid #dee2e6; border-radius: 5px; padding: 1rem;">
+                        <h4 style="color: #667eea; margin-bottom: 0.5rem;">{{ dept.name }}</h4>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                            Code: <strong>{{ dept.code }}</strong>
+                        </p>
+                        {% if dept.description %}
+                            <p style="color: #555; font-size: 0.9rem;">
+                                {{ dept.description|truncatewords:20 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: #666; text-align: center;">No departments configured yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Add some interactive features
+    document.addEventListener('DOMContentLoaded', function() {
+        // Highlight cards on hover
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Auto-refresh announcements every 5 minutes
+        setInterval(function() {
+            if (!document.hidden) {
+                // Only refresh if page is visible
+                const currentUrl = new URL(window.location);
+                if (currentUrl.pathname === '/') {
+                    console.log('Auto-refreshing announcements...');
+                    // You can add AJAX refresh here if needed
+                }
+            }
+        }, 300000); // 5 minutes
+
+        // Simple search enhancement
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.closest('form').submit();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

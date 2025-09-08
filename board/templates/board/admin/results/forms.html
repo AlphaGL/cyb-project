@@ -1,0 +1,359 @@
+{% extends 'board/base.html' %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">{{ title }}</h1>
+            <p style="color: #666;">Fill in the details below to create or update a result entry.</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_results' %}" class="btn btn-secondary">
+                Back to Results
+            </a>
+        </div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 300px; gap: 2rem;">
+    <!-- Main Form -->
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">Result Details</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" id="resultForm">
+                {% csrf_token %}
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.course_code.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Course Code
+                        </label>
+                        {{ form.course_code }}
+                        {% if form.course_code.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.course_code.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.department.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Department
+                        </label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.department.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.course_title.id_for_label }}">
+                        <span style="color: #dc3545;">*</span> Course Title
+                    </label>
+                    {{ form.course_title }}
+                    {% if form.course_title.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.course_title.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label for="{{ form.session.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Session
+                        </label>
+                        {{ form.session }}
+                        {% if form.session.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.session.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">
+                            Format: 2023/2024
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.semester.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Semester
+                        </label>
+                        {{ form.semester }}
+                        {% if form.semester.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.semester.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.level.id_for_label }}">
+                            <span style="color: #dc3545;">*</span> Level
+                        </label>
+                        {{ form.level }}
+                        {% if form.level.errors %}
+                            <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                                {{ form.level.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <small style="color: #666; display: block; margin-top: 0.5rem;">
+                            Format: 200L, 300L
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.file_url.id_for_label }}">Result File URL</label>
+                    {{ form.file_url }}
+                    {% if form.file_url.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.file_url.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Optional: Link to result document (PDF, Excel, etc.)
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="{{ form.description.id_for_label }}">Description/Notes</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.description.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Optional: Additional notes about this result
+                    </small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        {{ form.is_published }}
+                        <span>Publish this result (make it visible to students)</span>
+                    </label>
+                    {% if form.is_published.errors %}
+                        <div style="color: #dc3545; font-size: 0.9rem; margin-top: 0.5rem;">
+                            {{ form.is_published.errors.0 }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #666; display: block; margin-top: 0.5rem;">
+                        Uncheck to save as draft
+                    </small>
+                </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-success">
+                        <span>💾</span> Save Result
+                    </button>
+                    <a href="{% url 'admin_results' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <!-- Preview Card -->
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">Preview</h3>
+            </div>
+            <div class="card-body">
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px;">
+                    <h4 id="previewCourse" style="color: #333; margin-bottom: 0.5rem;">
+                        Course Code - Course Title
+                    </h4>
+                    <div style="display: grid; gap: 0.5rem; font-size: 0.9rem; color: #666;">
+                        <div><strong>Department:</strong> <span id="previewDepartment">Department</span></div>
+                        <div><strong>Session:</strong> <span id="previewSession">Session</span></div>
+                        <div><strong>Semester:</strong> <span id="previewSemester">Semester</span></div>
+                        <div><strong>Level:</strong> <span id="previewLevel">Level</span></div>
+                        <div id="previewStatus" style="margin-top: 0.5rem;">
+                            <span style="background: #28a745; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">
+                                PUBLISHED
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="card" style="margin-bottom: 1rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">📝 Guidelines</h3>
+            </div>
+            <div class="card-body">
+                <ul style="color: #666; font-size: 0.9rem; line-height: 1.6;">
+                    <li><strong>Course Code:</strong> Use standard format</li>
+                    <li><strong>Session:</strong> Academic year format</li>
+                    <li><strong>File URL:</strong> Must be publicly accessible</li>
+                    <li><strong>Publishing:</strong> Only publish verified results</li>
+                    <li><strong>Description:</strong> Include important notes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Publishing Info -->
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">📊 Publishing Status</h3>
+            </div>
+            <div class="card-body" style="font-size: 0.9rem;">
+                <div style="margin-bottom: 0.5rem;">
+                    <strong style="color: #28a745;">Published:</strong>
+                    <span style="color: #666;">Visible to all students</span>
+                </div>
+                <div>
+                    <strong style="color: #fd7e14;">Draft:</strong>
+                    <span style="color: #666;">Only visible to admins</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('resultForm');
+    const courseCodeInput = form.querySelector('input[name="course_code"]');
+    const courseTitleInput = form.querySelector('input[name="course_title"]');
+    const departmentSelect = form.querySelector('select[name="department"]');
+    const sessionInput = form.querySelector('input[name="session"]');
+    const semesterSelect = form.querySelector('select[name="semester"]');
+    const levelInput = form.querySelector('input[name="level"]');
+    const publishedCheckbox = form.querySelector('input[name="is_published"]');
+    
+    // Preview elements
+    const previewCourse = document.getElementById('previewCourse');
+    const previewDepartment = document.getElementById('previewDepartment');
+    const previewSession = document.getElementById('previewSession');
+    const previewSemester = document.getElementById('previewSemester');
+    const previewLevel = document.getElementById('previewLevel');
+    const previewStatus = document.getElementById('previewStatus');
+    
+    // Real-time preview
+    function updatePreview() {
+        const courseCode = courseCodeInput.value.trim() || 'Course Code';
+        const courseTitle = courseTitleInput.value.trim() || 'Course Title';
+        const department = departmentSelect.options[departmentSelect.selectedIndex]?.text || 'Department';
+        const session = sessionInput.value.trim() || 'Session';
+        const semester = semesterSelect.options[semesterSelect.selectedIndex]?.text || 'Semester';
+        const level = levelInput.value.trim() || 'Level';
+        const isPublished = publishedCheckbox.checked;
+        
+        previewCourse.textContent = `${courseCode} - ${courseTitle}`;
+        previewDepartment.textContent = department;
+        previewSession.textContent = session;
+        previewSemester.textContent = semester;
+        previewLevel.textContent = level;
+        
+        // Update status
+        previewStatus.innerHTML = isPublished
+            ? '<span style="background: #28a745; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">PUBLISHED</span>'
+            : '<span style="background: #fd7e14; color: white; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem;">DRAFT</span>';
+    }
+    
+    // Attach listeners
+    [courseCodeInput, courseTitleInput, sessionInput, levelInput].forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+    
+    [departmentSelect, semesterSelect, publishedCheckbox].forEach(input => {
+        input.addEventListener('change', updatePreview);
+    });
+    
+    // Initial preview
+    updatePreview();
+    
+    // Session format validation
+    sessionInput.addEventListener('input', function() {
+        const value = this.value;
+        const pattern = /^\d{4}\/\d{4}$/;
+        
+        if (value && !pattern.test(value)) {
+            this.style.borderColor = '#fd7e14';
+        } else {
+            this.style.borderColor = '#ddd';
+        }
+    });
+    
+    // Level format validation
+    levelInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+        const value = this.value;
+        const pattern = /^\d{3}L$/;
+        
+        if (value && !pattern.test(value)) {
+            this.style.borderColor = '#fd7e14';
+        } else {
+            this.style.borderColor = '#ddd';
+        }
+    });
+    
+    // Course code formatting
+    courseCodeInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = [courseCodeInput, courseTitleInput, departmentSelect, sessionInput, semesterSelect, levelInput];
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.borderColor = '#dc3545';
+                isValid = false;
+            } else {
+                field.style.borderColor = '#ddd';
+            }
+        });
+        
+        // Validate session format
+        if (sessionInput.value && !/^\d{4}\/\d{4}$/.test(sessionInput.value)) {
+            alert('Session must be in format: YYYY/YYYY (e.g., 2023/2024)');
+            sessionInput.style.borderColor = '#dc3545';
+            isValid = false;
+        }
+        
+        // Validate level format
+        if (levelInput.value && !/^\d{3}L$/.test(levelInput.value)) {
+            alert('Level must be in format: XXXL (e.g., 200L, 300L)');
+            levelInput.style.borderColor = '#dc3545';
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields with correct formats.');
+            return;
+        }
+        
+        // Confirm publishing
+        if (publishedCheckbox.checked) {
+            if (!confirm('Are you sure you want to publish this result? It will be visible to all students.')) {
+                e.preventDefault();
+                return;
+            }
+        }
+        
+        // Add loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        addLoadingState(submitButton);
+    });
+});
+</script>
+{% endblock %}

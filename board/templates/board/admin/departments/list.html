@@ -1,0 +1,95 @@
+{% extends 'board/base.html' %}
+
+{% block title %}Manage Departments - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="color: #333; margin-bottom: 0.5rem;">Manage Departments</h1>
+            <p style="color: #666;">Create, edit, and manage department information.</p>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                Back to Dashboard
+            </a>
+            <a href="{% url 'admin_add_department' %}" class="btn btn-success">
+                <span>+</span> Add New Department
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if departments %}
+    <div class="card">
+        <div class="card-header">
+            <h2 style="margin: 0;">All Departments ({{ departments|length }})</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Department Name</th>
+                            <th>Code</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for department in departments %}
+                            <tr>
+                                <td>
+                                    <strong>{{ department.name }}</strong>
+                                </td>
+                                <td>
+                                    <span style="background: #667eea; color: white; padding: 0.3rem 0.6rem; border-radius: 3px; font-weight: bold;">
+                                        {{ department.code }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if department.description %}
+                                        <small style="color: #666;">{{ department.description|truncatechars:80 }}</small>
+                                    {% else %}
+                                        <small style="color: #999;">No description</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ department.created_at|date:"M d, Y" }}</small>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <a href="{% url 'admin_edit_department' department.id %}" 
+                                           class="btn btn-primary btn-sm" title="Edit">
+                                            Edit
+                                        </a>
+                                        <a href="{% url 'admin_delete_department' department.id %}" 
+                                           class="btn btn-danger btn-sm" title="Delete"
+                                           onclick="return confirm('Are you sure? This will affect all related announcements, events, etc.')">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="card-body" style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; color: #dee2e6; margin-bottom: 1rem;">🏛️</div>
+            <h3 style="color: #666; margin-bottom: 1rem;">No Departments Yet</h3>
+            <p style="color: #888; margin-bottom: 2rem;">
+                Start by adding your first department.
+            </p>
+            <a href="{% url 'admin_add_department' %}" class="btn btn-success">
+                <span>+</span> Add First Department
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
