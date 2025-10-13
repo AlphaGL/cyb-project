@@ -55,11 +55,18 @@ WSGI_APPLICATION = 'student_info_board.wsgi.application'
 # Database
 import dj_database_url
 
-# neroxps@gamil.com
-# supabase
+
 DATABASES = {
-        'default': dj_database_url.parse('postgresql://postgres.lnmohokjrtpryksqhsgg:peterdb1234@aws-1-us-east-1.pooler.supabase.com:6543/postgres')
+        'default': dj_database_url.parse('postgresql://postgres.pwdbxudnrohawcjecwqt:cyb_project_database@aws-1-us-east-2.pooler.supabase.com:6543/postgres')
     }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # DATABASES['default'] = dj_database_url.parse(os.environ['DATABASE_URL'])
 

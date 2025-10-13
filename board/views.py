@@ -10,6 +10,10 @@ from django.core.paginator import Paginator
 from .models import Announcement, Event, Timetable, Result, Department
 from .forms import AdminLoginForm, AnnouncementForm, EventForm, TimetableForm, ResultForm, DepartmentForm
 
+
+def ping_view(request):
+    return JsonResponse({"status": "OK"})
+
 # Public Views
 def home(request):
     """Homepage with latest announcements and events"""
