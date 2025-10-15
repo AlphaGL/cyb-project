@@ -57,8 +57,8 @@ import dj_database_url
 
 
 DATABASES = {
-        'default': dj_database_url.parse('postgresql://postgres.pwdbxudnrohawcjecwqt:cyb_project_database@aws-1-us-east-2.pooler.supabase.com:6543/postgres')
-    }
+    'default': dj_database_url.parse(config('DATABASE_URL'))
+}
 
 
 # DATABASES = {
